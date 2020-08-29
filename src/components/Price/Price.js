@@ -1,15 +1,14 @@
 import React from 'react';
-import cx from 'classnames';
 import BaseComponent from '../BaseComponent/BaseComponent';
+import { formatMoney } from 'csssr-school-utils';
+import cx from 'classnames';
 import styles from './Price.module.sass';
+
+const DECIMAL_COUNT = 0;
 
 class Price extends BaseComponent {
   render() {
     let { value, isOriginalPrice } = this.props;
-    const formatter = new Intl.NumberFormat('ru', {
-      style: 'currency',
-      currency: 'Rub'
-    });
 
     return (
       <span
@@ -17,7 +16,7 @@ class Price extends BaseComponent {
           [styles['Price--secondary']]: isOriginalPrice === false
         })}
       >
-        {formatter.format(value)}
+        {formatMoney(value, DECIMAL_COUNT)}
       </span>
     );
   }
