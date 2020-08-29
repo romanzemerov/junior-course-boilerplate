@@ -12,18 +12,17 @@ class GoodsList extends BaseComponent {
       <ul className={styles.GoodsList}>
         {goods.map(good => {
           const { id, price, subPriceContent, ...restProps } = good;
+          const subPriceNode = subPriceContent ? (
+            <Price value={subPriceContent} isOriginalPrice={false} />
+          ) : (
+            ''
+          );
 
           return (
             <ProductItem
               {...restProps}
               price={<Price value={price} />}
-              subPriceContent={
-                subPriceContent ? (
-                  <Price value={subPriceContent} isOriginalPrice={false} />
-                ) : (
-                  ''
-                )
-              }
+              subPriceContent={subPriceNode}
               ratingComponent={Rating}
               key={id}
             />
