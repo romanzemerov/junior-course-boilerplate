@@ -30,8 +30,8 @@ class Filters extends BaseComponent {
     );
 
     filterProducts(
-      this.minPriceInput.current.value,
-      this.maxPriceInput.current.value
+      this.minPriceInput.current.value || null,
+      this.maxPriceInput.current.value || null
     );
   };
 
