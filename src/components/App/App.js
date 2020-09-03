@@ -12,33 +12,67 @@ const getMaxPrice = products => Math.max(...products.map(({ price }) => price));
 class App extends BaseComponent {
   state = {
     products: this.props.products,
-    showingProducts: this.props.products,
-    minProductPrice: getMinPrice(this.props.products),
-    maxProductPrice: getMaxPrice(this.props.products)
+    productsFilter: {
+      minProductPrice: {
+        id: 'minProductPrice',
+        name: 'от',
+        value: getMinPrice(this.props.products)
+      },
+      maxProductPrice: {
+        id: 'maxProductPrice',
+        name: 'до',
+        value: getMaxPrice(this.props.products)
+      },
+      discount: {
+        id: 'discount',
+        value: 0
+      }
+    }
   };
 
   filterProducts = (minPrice, maxPrice, discountValue) => {
     const { products } = this.state;
 
-    const showingProducts = products
+    return products
       .filter(({ discount }) => discount >= discountValue)
       .filter(({ price }) => price >= minPrice && price <= maxPrice);
+  };
 
-    this.setState({ showingProducts });
+  handleChangeFilterInput = (filterName, value) => {
+    const productsFilter = this.state.productsFilter;
+    const changedFilter = { ...productsFilter[filterName] };
+    changedFilter.value = value;
+    const newProductsFilter = {
+      ...productsFilter,
+      [filterName]: changedFilter
+    };
+
+    this.setState({
+      productsFilter: {
+        ...newProductsFilter
+      }
+    });
   };
 
   render() {
-    const { minProductPrice, maxProductPrice, showingProducts } = this.state;
+    const { productsFilter } = this.state;
+    const { minProductPrice, maxProductPrice, discount } = productsFilter;
+
+    const filteredProducts = this.filterProducts(
+      minProductPrice.value,
+      maxProductPrice.value,
+      discount.value
+    );
+
     return (
       <div className={styles.App}>
         <Filters
-          minProductPrice={minProductPrice}
-          maxProductPrice={maxProductPrice}
-          filterProducts={this.filterProducts}
+          filters={productsFilter}
+          handleChangeFilterInput={this.handleChangeFilterInput}
         />
         <Goods>
           <Header>Список товаров</Header>
-          <GoodsList goods={showingProducts} />
+          <GoodsList goods={filteredProducts} />
         </Goods>
       </div>
     );

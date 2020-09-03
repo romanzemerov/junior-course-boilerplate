@@ -7,7 +7,7 @@ import styles from './GoodsList.module.sass';
 
 class GoodsList extends BaseComponent {
   render() {
-    console.log('GoodsList');
+    console.log('GoodsList RENDER !!!!');
 
     let { goods } = this.props;
     return (

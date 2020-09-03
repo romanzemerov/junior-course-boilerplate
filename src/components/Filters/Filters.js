@@ -1,26 +1,15 @@
 import React from 'react';
 import BaseComponent from '../BaseComponent/BaseComponent';
-import styles from './Filters.module.sass';
 import InputNumber from '../InputNumber';
 import InputDiscount from '../InputDiscount/inputDiscount';
+import styles from './Filters.module.sass';
 
 class Filters extends BaseComponent {
-  state = {
-    minProductPrice: this.props.minProductPrice,
-    maxProductPrice: this.props.maxProductPrice,
-    discount: 0
-  };
-
-  handleChangeValue = (name, value) => {
-    const { filterProducts } = this.props;
-    this.setState({ [name]: value }, () => {
-      const { minProductPrice, maxProductPrice, discount } = this.state;
-      filterProducts(minProductPrice, maxProductPrice, discount);
-    });
-  };
-
   render() {
-    const { minProductPrice, maxProductPrice } = this.props;
+    const {
+      filters: { minProductPrice, maxProductPrice, discount },
+      handleChangeFilterInput
+    } = this.props;
     return (
       <article className={styles.Filters}>
         <form>
@@ -28,25 +17,25 @@ class Filters extends BaseComponent {
             <legend className={styles.FiltersHeader}>Цена</legend>
             <div className={styles.FiltersPrice}>
               <InputNumber
-                id="minProductPrice"
-                name="от"
-                defaultValue={minProductPrice}
+                id={minProductPrice.id}
+                name={minProductPrice.name}
+                defaultValue={minProductPrice.value}
                 placeholder={0}
-                onChangeInputValue={this.handleChangeValue}
+                onChangeInputValue={handleChangeFilterInput}
               />
               <InputNumber
-                id="maxProductPrice"
-                name="до"
-                defaultValue={maxProductPrice}
+                id={maxProductPrice.id}
+                name={maxProductPrice.name}
+                defaultValue={maxProductPrice.value}
                 placeholder={3000}
-                onChangeInputValue={this.handleChangeValue}
+                onChangeInputValue={handleChangeFilterInput}
               />
             </div>
             <InputDiscount
               title="Скидка"
-              id="discount"
-              value={this.state.discount}
-              onChangeInputValue={this.handleChangeValue}
+              id={discount.id}
+              value={discount.value}
+              onChangeInputValue={handleChangeFilterInput}
             />
           </fieldset>
         </form>
