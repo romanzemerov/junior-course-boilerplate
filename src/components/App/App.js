@@ -21,11 +21,7 @@ class App extends BaseComponent {
   }
 
   filterProducts = (minPrice, maxPrice) => {
-    const { minProductPrice, maxProductPrice, products } = this.state;
-
-    if (!minPrice) minPrice = minProductPrice;
-
-    if (!maxPrice) maxPrice = maxProductPrice;
+    const { products } = this.state;
 
     const showingProducts = products.filter(
       ({ price }) => price >= minPrice && price <= maxPrice

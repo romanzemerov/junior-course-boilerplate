@@ -1,78 +1,56 @@
 import React from 'react';
-import Button from '../Button';
 import BaseComponent from '../BaseComponent/BaseComponent';
 import styles from './Filters.module.sass';
+import InputNumber from '../InputNumber';
+import Discount from 'csssr-school-input-discount';
 
 class Filters extends BaseComponent {
   constructor(props) {
     super(props);
-    this.minPriceInput = React.createRef();
-    this.maxPriceInput = React.createRef();
+    this.state = {
+      minProductPrice: this.props.minProductPrice,
+      maxProductPrice: this.props.maxProductPrice
+    };
   }
 
-  // "А если введены не положительные числа, просто будем считать,
-  // что фильтр не задан и считаем, что это 0."
-  // По-моему это не юзер фредли. Лучше уж просто сбрасывать до
-  // дефолтного значения.
-  normalizeInputValue = input => {
-    if (input.value < 0) {
-      const inputName = input.name;
-      input.value = this.props[inputName];
-    }
-  };
-
-  handleSubmit = e => {
-    e.preventDefault();
+  handleChangePrice = (name, price) => {
     const { filterProducts } = this.props;
 
-    [this.minPriceInput.current, this.maxPriceInput.current].forEach(
-      this.normalizeInputValue
-    );
-
-    filterProducts(
-      this.minPriceInput.current.value || null,
-      this.maxPriceInput.current.value || null
-    );
+    this.setState({ [name]: price }, () => {
+      const { minProductPrice, maxProductPrice } = this.state;
+      filterProducts(minProductPrice, maxProductPrice);
+    });
   };
 
   render() {
     const { minProductPrice, maxProductPrice } = this.props;
     return (
       <article className={styles.Filters}>
-        <form onSubmit={this.handleSubmit}>
+        <form>
           <fieldset className={styles.FiltersFieldset}>
             <legend className={styles.FiltersHeader}>Цена</legend>
             <div className={styles.FiltersPrice}>
-              <div className={styles.FiltersInputWrapper}>
-                <label className={styles.FiltersLabel} htmlFor="minPrice">
-                  от
-                </label>
-                <input
-                  className={styles.FiltersInput}
-                  type="number"
-                  name="minProductPrice"
-                  id="minPrice"
-                  placeholder={0}
-                  defaultValue={minProductPrice}
-                  ref={this.minPriceInput}
-                />
-              </div>
-              <div className={styles.FiltersInputWrapper}>
-                <label className={styles.FiltersLabel} htmlFor="maxPrice">
-                  до
-                </label>
-                <input
-                  className={styles.FiltersInput}
-                  type="number"
-                  name="maxProductPrice"
-                  id="maxPrice"
-                  placeholder={3000}
-                  defaultValue={maxProductPrice}
-                  ref={this.maxPriceInput}
-                />
-              </div>
+              <InputNumber
+                id="minProductPrice"
+                name="от"
+                defaultValue={minProductPrice}
+                placeholder={0}
+                onChangeInputValue={this.handleChangePrice}
+              />
+              <InputNumber
+                id="maxProductPrice"
+                name="до"
+                defaultValue={maxProductPrice}
+                placeholder={3000}
+                onChangeInputValue={this.handleChangePrice}
+              />
             </div>
-            <Button>Применить</Button>
+            <Discount
+              title="Скидка"
+              name="sale"
+              value={1}
+              onChange={() => {}}
+            />
           </fieldset>
         </form>
       </article>
