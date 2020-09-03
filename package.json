@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "csssr-school-utils": "git+https://github.com/CSSSR-School/junior-course-utils.git",
+    "@welldone-software/why-did-you-render": "^5.0.0-alpha.2",
     "csssr-school-input-discount": "git+https://github.com/CSSSR-School/junior-course-input-discount.git",
+    "csssr-school-utils": "git+https://github.com/CSSSR-School/junior-course-utils.git",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-scripts": "3.2.0",
@@ -27,7 +28,8 @@
     "husky": "3.1.0",
     "lint-staged": "9.5.0",
     "node-sass": "^4.14.1",
-    "prettier": "1.19.1"
+    "prettier": "1.19.1",
+    "react-addons-shallow-compare": "^15.6.2"
   },
   "lint-staged": {
     "*.+(js|jsx)": [

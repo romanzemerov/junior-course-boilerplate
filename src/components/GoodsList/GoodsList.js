@@ -7,6 +7,8 @@ import styles from './GoodsList.module.sass';
 
 class GoodsList extends BaseComponent {
   render() {
+    console.log('GoodsList');
+
     let { goods } = this.props;
     return (
       <ul className={styles.GoodsList}>

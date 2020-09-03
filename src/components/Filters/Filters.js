@@ -2,23 +2,20 @@ import React from 'react';
 import BaseComponent from '../BaseComponent/BaseComponent';
 import styles from './Filters.module.sass';
 import InputNumber from '../InputNumber';
-import Discount from 'csssr-school-input-discount';
+import InputDiscount from '../InputDiscount/inputDiscount';
 
 class Filters extends BaseComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      minProductPrice: this.props.minProductPrice,
-      maxProductPrice: this.props.maxProductPrice
-    };
-  }
+  state = {
+    minProductPrice: this.props.minProductPrice,
+    maxProductPrice: this.props.maxProductPrice,
+    discount: 0
+  };
 
-  handleChangePrice = (name, price) => {
+  handleChangeValue = (name, value) => {
     const { filterProducts } = this.props;
-
-    this.setState({ [name]: price }, () => {
-      const { minProductPrice, maxProductPrice } = this.state;
-      filterProducts(minProductPrice, maxProductPrice);
+    this.setState({ [name]: value }, () => {
+      const { minProductPrice, maxProductPrice, discount } = this.state;
+      filterProducts(minProductPrice, maxProductPrice, discount);
     });
   };
 
@@ -35,21 +32,21 @@ class Filters extends BaseComponent {
                 name="от"
                 defaultValue={minProductPrice}
                 placeholder={0}
-                onChangeInputValue={this.handleChangePrice}
+                onChangeInputValue={this.handleChangeValue}
               />
               <InputNumber
                 id="maxProductPrice"
                 name="до"
                 defaultValue={maxProductPrice}
                 placeholder={3000}
-                onChangeInputValue={this.handleChangePrice}
+                onChangeInputValue={this.handleChangeValue}
               />
             </div>
-            <Discount
+            <InputDiscount
               title="Скидка"
-              name="sale"
-              value={1}
-              onChange={() => {}}
+              id="discount"
+              value={this.state.discount}
+              onChangeInputValue={this.handleChangeValue}
             />
           </fieldset>
         </form>
