@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import styles from './Button.module.sass';
-import BaseComponent from '../BaseComponent/BaseComponent';
 
-class Button extends BaseComponent {
+class Button extends PureComponent {
   render() {
     let { children } = this.props;
     return <button className={styles.Button}>{children}</button>;

@@ -1,78 +1,41 @@
-import React from 'react';
-import Button from '../Button';
-import BaseComponent from '../BaseComponent/BaseComponent';
+import React, { PureComponent } from 'react';
+import InputNumber from '../InputNumber';
+import InputDiscount from '../InputDiscount/inputDiscount';
 import styles from './Filters.module.sass';
 
-class Filters extends BaseComponent {
-  constructor(props) {
-    super(props);
-    this.minPriceInput = React.createRef();
-    this.maxPriceInput = React.createRef();
-  }
-
-  // "А если введены не положительные числа, просто будем считать,
-  // что фильтр не задан и считаем, что это 0."
-  // По-моему это не юзер фредли. Лучше уж просто сбрасывать до
-  // дефолтного значения.
-  normalizeInputValue = input => {
-    if (input.value < 0) {
-      const inputName = input.name;
-      input.value = this.props[inputName];
-    }
-  };
-
-  handleSubmit = e => {
-    e.preventDefault();
-    const { filterProducts } = this.props;
-
-    [this.minPriceInput.current, this.maxPriceInput.current].forEach(
-      this.normalizeInputValue
-    );
-
-    filterProducts(
-      this.minPriceInput.current.value || null,
-      this.maxPriceInput.current.value || null
-    );
-  };
-
+class Filters extends PureComponent {
   render() {
-    const { minProductPrice, maxProductPrice } = this.props;
+    const {
+      filters: { minProductPrice, maxProductPrice, discount },
+      handleChangeFilterInput
+    } = this.props;
     return (
       <article className={styles.Filters}>
-        <form onSubmit={this.handleSubmit}>
+        <form>
           <fieldset className={styles.FiltersFieldset}>
             <legend className={styles.FiltersHeader}>Цена</legend>
             <div className={styles.FiltersPrice}>
-              <div className={styles.FiltersInputWrapper}>
-                <label className={styles.FiltersLabel} htmlFor="minPrice">
-                  от
-                </label>
-                <input
-                  className={styles.FiltersInput}
-                  type="number"
-                  name="minProductPrice"
-                  id="minPrice"
-                  placeholder={0}
-                  defaultValue={minProductPrice}
-                  ref={this.minPriceInput}
-                />
-              </div>
-              <div className={styles.FiltersInputWrapper}>
-                <label className={styles.FiltersLabel} htmlFor="maxPrice">
-                  до
-                </label>
-                <input
-                  className={styles.FiltersInput}
-                  type="number"
-                  name="maxProductPrice"
-                  id="maxPrice"
-                  placeholder={3000}
-                  defaultValue={maxProductPrice}
-                  ref={this.maxPriceInput}
-                />
-              </div>
+              <InputNumber
+                id={minProductPrice.id}
+                name={minProductPrice.name}
+                defaultValue={minProductPrice.value}
+                placeholder={0}
+                onChangeInputValue={handleChangeFilterInput}
+              />
+              <InputNumber
+                id={maxProductPrice.id}
+                name={maxProductPrice.name}
+                defaultValue={maxProductPrice.value}
+                placeholder={3000}
+                onChangeInputValue={handleChangeFilterInput}
+              />
             </div>
-            <Button>Применить</Button>
+            <InputDiscount
+              title="Скидка"
+              id={discount.id}
+              value={discount.value}
+              onChangeInputValue={handleChangeFilterInput}
+            />
           </fieldset>
         </form>
       </article>

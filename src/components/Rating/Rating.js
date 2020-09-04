@@ -1,7 +1,6 @@
-import React from 'react';
-import BaseComponent from '../BaseComponent/BaseComponent';
+import React, { PureComponent } from 'react';
 
-class Rating extends BaseComponent {
+class Rating extends PureComponent {
   render() {
     let { isFilled } = this.props;
     return isFilled ? (

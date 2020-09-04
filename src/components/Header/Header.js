@@ -1,10 +1,9 @@
-import React from 'react';
-import BaseComponent from '../BaseComponent/BaseComponent';
+import React, { PureComponent } from 'react';
 import styles from './Header.module.sass';
 
-class Header extends BaseComponent {
+class Header extends PureComponent {
   render() {
-    let { children } = this.props;
+    const { children } = this.props;
     return <h2 className={styles.Header}>{children}</h2>;
   }
 }

@@ -1,52 +1,72 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Goods from '../Goods';
 import Header from '../Header';
 import GoodsList from '../GoodsList';
 import Filters from '../Filters';
-import BaseComponent from '../BaseComponent/BaseComponent';
 import styles from './App.module.sass';
 
 const getMinPrice = products => Math.min(...products.map(({ price }) => price));
 const getMaxPrice = products => Math.max(...products.map(({ price }) => price));
 
-class App extends BaseComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      products: props.products,
-      showingProducts: props.products,
-      minProductPrice: getMinPrice(props.products),
-      maxProductPrice: getMaxPrice(props.products)
-    };
-  }
+class App extends Component {
+  state = {
+    products: this.props.products,
+    productsFilter: {
+      minProductPrice: {
+        id: 'minProductPrice',
+        name: 'от',
+        value: getMinPrice(this.props.products)
+      },
+      maxProductPrice: {
+        id: 'maxProductPrice',
+        name: 'до',
+        value: getMaxPrice(this.props.products)
+      },
+      discount: {
+        id: 'discount',
+        value: 0
+      }
+    }
+  };
 
-  filterProducts = (minPrice, maxPrice) => {
-    const { minProductPrice, maxProductPrice, products } = this.state;
+  filterProducts = (minPrice, maxPrice, discountValue) => {
+    const { products } = this.state;
 
-    if (!minPrice) minPrice = minProductPrice;
+    return products
+      .filter(({ discount }) => discount >= discountValue)
+      .filter(({ price }) => price >= minPrice && price <= maxPrice);
+  };
 
-    if (!maxPrice) maxPrice = maxProductPrice;
+  handleChangeFilterInput = (filterName, value) => {
+    this.setState(({ productsFilter }) => {
+      const newProductsFilter = { ...productsFilter };
+      newProductsFilter[filterName].value = value;
 
-    const showingProducts = products.filter(
-      ({ price }) => price >= minPrice && price <= maxPrice
-    );
-
-    this.setState({ showingProducts });
+      return {
+        productsFilter: newProductsFilter
+      };
+    });
   };
 
   render() {
-    const { minProductPrice, maxProductPrice, showingProducts } = this.state;
+    const { productsFilter } = this.state;
+    const { minProductPrice, maxProductPrice, discount } = productsFilter;
+
+    const filteredProducts = this.filterProducts(
+      minProductPrice.value,
+      maxProductPrice.value,
+      discount.value
+    );
 
     return (
       <div className={styles.App}>
         <Filters
-          minProductPrice={minProductPrice}
-          maxProductPrice={maxProductPrice}
-          filterProducts={this.filterProducts}
+          filters={productsFilter}
+          handleChangeFilterInput={this.handleChangeFilterInput}
         />
         <Goods>
           <Header>Список товаров</Header>
-          <GoodsList goods={showingProducts} />
+          <GoodsList goods={filteredProducts} />
         </Goods>
       </div>
     );
