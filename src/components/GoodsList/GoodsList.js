@@ -6,9 +6,9 @@ import BaseComponent from '../BaseComponent/BaseComponent';
 import styles from './GoodsList.module.sass';
 
 class GoodsList extends BaseComponent {
-  render() {
-    console.log('GoodsList RENDER !!!!');
+  static whyDidYouRender = true;
 
+  render() {
     let { goods } = this.props;
     return (
       <ul className={styles.GoodsList}>
