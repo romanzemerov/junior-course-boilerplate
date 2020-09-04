@@ -5,7 +5,7 @@ import Price from '../Price/Price';
 import styles from './GoodsList.module.sass';
 
 class GoodsList extends Component {
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
+  shouldComponentUpdate(nextProps, nextState) {
     const { goods } = this.props;
     const { goods: nextGoods } = nextProps;
 

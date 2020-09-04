@@ -3,7 +3,6 @@ import Goods from '../Goods';
 import Header from '../Header';
 import GoodsList from '../GoodsList';
 import Filters from '../Filters';
-import _ from 'lodash';
 import styles from './App.module.sass';
 
 const getMinPrice = products => Math.min(...products.map(({ price }) => price));
@@ -30,16 +29,13 @@ class App extends Component {
     }
   };
 
-  filterProducts = _.memoize(
-    (minPrice, maxPrice, discountValue) => {
-      const { products } = this.state;
+  filterProducts = (minPrice, maxPrice, discountValue) => {
+    const { products } = this.state;
 
-      return products
-        .filter(({ discount }) => discount >= discountValue)
-        .filter(({ price }) => price >= minPrice && price <= maxPrice);
-    },
-    (...args) => args.join('_')
-  );
+    return products
+      .filter(({ discount }) => discount >= discountValue)
+      .filter(({ price }) => price >= minPrice && price <= maxPrice);
+  };
 
   handleChangeFilterInput = (filterName, value) => {
     this.setState(({ productsFilter }) => {

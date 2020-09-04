@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 
-class Rating extends ({ PureComponent }) {
+class Rating extends PureComponent {
   render() {
     let { isFilled } = this.props;
     return isFilled ? (
