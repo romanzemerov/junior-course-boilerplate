@@ -26,9 +26,9 @@ const withInputNumber = WrappedComponent => {
 
       return (
         <WrappedComponent
+          {...rest}
           onChange={this.handleInputChange}
           value={value}
-          {...rest}
         />
       );
     }
