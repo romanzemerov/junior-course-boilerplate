@@ -39,18 +39,13 @@ class App extends BaseComponent {
   };
 
   handleChangeFilterInput = (filterName, value) => {
-    const productsFilter = this.state.productsFilter;
-    const changedFilter = { ...productsFilter[filterName] };
-    changedFilter.value = value;
-    const newProductsFilter = {
-      ...productsFilter,
-      [filterName]: changedFilter
-    };
+    this.setState(({ productsFilter }) => {
+      const newProductsFilter = { ...productsFilter };
+      newProductsFilter[filterName].value = value;
 
-    this.setState({
-      productsFilter: {
-        ...newProductsFilter
-      }
+      return {
+        productsFilter: newProductsFilter
+      };
     });
   };
 
