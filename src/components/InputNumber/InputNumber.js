@@ -1,9 +1,8 @@
-import React from 'react';
-import BaseComponent from '../BaseComponent/BaseComponent';
+import React, { PureComponent } from 'react';
 import withInputNumber from '../HOCs/withInputNumber';
 import styles from './InputNumber.module.sass';
 
-class InputNumber extends BaseComponent {
+class InputNumber extends PureComponent {
   render() {
     const { id, name, value, placeholder, onChange } = this.props;
 

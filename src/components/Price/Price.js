@@ -1,12 +1,11 @@
-import React from 'react';
-import BaseComponent from '../BaseComponent/BaseComponent';
+import React, { PureComponent } from 'react';
 import { formatMoney } from 'csssr-school-utils';
 import cx from 'classnames';
 import styles from './Price.module.sass';
 
 const DECIMAL_COUNT = 0;
 
-class Price extends BaseComponent {
+class Price extends PureComponent {
   render() {
     let { value, isOriginalPrice } = this.props;
 

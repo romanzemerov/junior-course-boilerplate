@@ -1,9 +1,8 @@
-import React from 'react';
-import BaseComponent from '../BaseComponent/BaseComponent';
+import React, { PureComponent } from 'react';
 import Discount from 'csssr-school-input-discount';
 import withInputNumber from '../HOCs/withInputNumber';
 
-class InputDiscount extends BaseComponent {
+class InputDiscount extends PureComponent {
   render() {
     const { id: name } = this.props;
 

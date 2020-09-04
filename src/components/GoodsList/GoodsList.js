@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ProductItem from 'school-product-card';
 import Rating from '../Rating';
 import Price from '../Price/Price';
-import BaseComponent from '../BaseComponent/BaseComponent';
 import styles from './GoodsList.module.sass';
 
-class GoodsList extends BaseComponent {
-  static whyDidYouRender = true;
+class GoodsList extends Component {
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    const { goods } = this.props;
+    const { goods: nextGoods } = nextProps;
+
+    return goods.length === nextGoods.length
+      ? goods.every(({ id }, i) => id !== nextGoods[i].id)
+      : true;
+  }
 
   render() {
     let { goods } = this.props;

@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Goods from '../Goods';
 import Header from '../Header';
 import GoodsList from '../GoodsList';
 import Filters from '../Filters';
-import BaseComponent from '../BaseComponent/BaseComponent';
+import _ from 'lodash';
 import styles from './App.module.sass';
 
 const getMinPrice = products => Math.min(...products.map(({ price }) => price));
 const getMaxPrice = products => Math.max(...products.map(({ price }) => price));
 
-class App extends BaseComponent {
+class App extends Component {
   state = {
     products: this.props.products,
     productsFilter: {
@@ -30,13 +30,16 @@ class App extends BaseComponent {
     }
   };
 
-  filterProducts = (minPrice, maxPrice, discountValue) => {
-    const { products } = this.state;
+  filterProducts = _.memoize(
+    (minPrice, maxPrice, discountValue) => {
+      const { products } = this.state;
 
-    return products
-      .filter(({ discount }) => discount >= discountValue)
-      .filter(({ price }) => price >= minPrice && price <= maxPrice);
-  };
+      return products
+        .filter(({ discount }) => discount >= discountValue)
+        .filter(({ price }) => price >= minPrice && price <= maxPrice);
+    },
+    (...args) => args.join('_')
+  );
 
   handleChangeFilterInput = (filterName, value) => {
     this.setState(({ productsFilter }) => {

@@ -1,10 +1,9 @@
-import React from 'react';
-import BaseComponent from '../BaseComponent/BaseComponent';
+import React, { PureComponent } from 'react';
 import InputNumber from '../InputNumber';
 import InputDiscount from '../InputDiscount/inputDiscount';
 import styles from './Filters.module.sass';
 
-class Filters extends BaseComponent {
+class Filters extends PureComponent {
   render() {
     const {
       filters: { minProductPrice, maxProductPrice, discount },

@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 
 const REGEXP = /\d/g;
 
 const withInputNumber = WrappedComponent => {
-  return class extends Component {
+  return class extends PureComponent {
     static displayName = 'withInputNumber';
 
     state = { value: this.props.defaultValue };
