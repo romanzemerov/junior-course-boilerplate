@@ -6,7 +6,7 @@ class InputDiscount extends PureComponent {
   render() {
     const { id: name } = this.props;
 
-    return <Discount name={name} {...this.props} />;
+    return <Discount {...this.props} name={name}  />;
   }
 }
 

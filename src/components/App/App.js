@@ -25,16 +25,43 @@ class App extends Component {
       discount: {
         id: 'discount',
         value: 0
-      }
+      },
+      categories: [
+        {
+          id: 'clothes',
+          name: 'Clothes',
+          isActive: false
+        },
+        {
+          id: 'books',
+          name: 'Books',
+          isActive: false
+        }
+      ]
     }
   };
 
   filterProducts = (minPrice, maxPrice, discountValue) => {
-    const { products } = this.state;
+    const { products, productsFilter } = this.state;
+    const { categories } = productsFilter;
+    const activeFilters = categories.reduce(
+      (activeFilters, filter) =>
+        filter.isActive ? [...activeFilters, filter.id] : activeFilters,
+      []
+    );
 
-    return products
-      .filter(({ discount }) => discount >= discountValue)
-      .filter(({ price }) => price >= minPrice && price <= maxPrice);
+    const isCategoriesFilterActive = categories.some(
+      ({ isActive }) => isActive === true
+    );
+
+    return isCategoriesFilterActive
+      ? products
+          .filter(({ category }) => activeFilters.includes(category))
+          .filter(({ discount }) => discount >= discountValue)
+          .filter(({ price }) => price >= minPrice && price <= maxPrice)
+      : products
+          .filter(({ discount }) => discount >= discountValue)
+          .filter(({ price }) => price >= minPrice && price <= maxPrice);
   };
 
   handleChangeFilterInput = (filterName, value) => {
@@ -44,6 +71,61 @@ class App extends Component {
 
       return {
         productsFilter: newProductsFilter
+      };
+    });
+  };
+
+  handleChangeCategories = categoryID => {
+    this.setState(({ productsFilter }) => {
+      const { categories } = productsFilter;
+
+      const index = categories.findIndex(({ id }) => id === categoryID);
+      const category = categories[index];
+
+      const newCategory = {
+        ...category,
+        isActive: !category.isActive
+      };
+      const newCategories = [
+        ...categories.slice(0, index),
+        newCategory,
+        ...categories.slice(index + 1)
+      ];
+
+      return {
+        productsFilter: {
+          ...productsFilter,
+          categories: newCategories
+        }
+      };
+    });
+  };
+
+  handleResetFilters = () => {
+    this.setState(({ productsFilter }) => {
+      const {
+        minProductPrice,
+        maxProductPrice,
+        discount,
+        categories
+      } = productsFilter;
+
+      return {
+        productsFilter: {
+          minProductPrice: {
+            ...minProductPrice,
+            value: getMinPrice(this.props.products)
+          },
+          maxProductPrice: {
+            ...maxProductPrice,
+            value: getMaxPrice(this.props.products)
+          },
+          discount: { ...discount, value: 0 },
+          categories: [...categories].map(category => {
+            category.isActive = false;
+            return category;
+          })
+        }
       };
     });
   };
@@ -63,6 +145,8 @@ class App extends Component {
         <Filters
           filters={productsFilter}
           handleChangeFilterInput={this.handleChangeFilterInput}
+          handleChangeCategories={this.handleChangeCategories}
+          handleResetFilters={this.handleResetFilters}
         />
         <Goods>
           <Header>Список товаров</Header>

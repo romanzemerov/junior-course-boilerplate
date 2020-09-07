@@ -2,13 +2,18 @@ import React, { PureComponent } from 'react';
 import InputNumber from '../InputNumber';
 import InputDiscount from '../InputDiscount/inputDiscount';
 import styles from './Filters.module.sass';
+import CategoriesList from '../CategoriesList';
+import Button from '../Button';
 
 class Filters extends PureComponent {
   render() {
     const {
-      filters: { minProductPrice, maxProductPrice, discount },
-      handleChangeFilterInput
+      filters: { minProductPrice, maxProductPrice, discount, categories },
+      handleChangeFilterInput,
+      handleChangeCategories,
+      handleResetFilters
     } = this.props;
+
     return (
       <article className={styles.Filters}>
         <form>
@@ -30,13 +35,27 @@ class Filters extends PureComponent {
                 onChangeInputValue={handleChangeFilterInput}
               />
             </div>
+          </fieldset>
+          <fieldset className={styles.FiltersCustomFieldset}>
             <InputDiscount
               title="Скидка"
               id={discount.id}
+              defaultValue={discount.value}
               value={discount.value}
               onChangeInputValue={handleChangeFilterInput}
             />
           </fieldset>
+          <fieldset className={styles.FiltersFieldset}>
+            <legend className={styles.FiltersHeader}>Категории</legend>
+            <CategoriesList
+              items={categories}
+              onClickCategoriesButton={handleChangeCategories}
+            />
+          </fieldset>
+
+          <Button type={'secondary'} onClick={handleResetFilters}>
+            Сбросить фильтры
+          </Button>
         </form>
       </article>
     );
