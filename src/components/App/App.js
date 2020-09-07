@@ -5,6 +5,8 @@ import GoodsList from '../GoodsList';
 import Filters from '../Filters';
 import styles from './App.module.sass';
 
+export const AppContext = React.createContext();
+
 const getMinPrice = products => Math.min(...products.map(({ price }) => price));
 const getMaxPrice = products => Math.max(...products.map(({ price }) => price));
 
@@ -140,19 +142,23 @@ class App extends Component {
       discount.value
     );
 
+    const appContextValue = {
+      filters: productsFilter,
+      handleChangeFilterInput: this.handleChangeFilterInput,
+      handleChangeCategories: this.handleChangeCategories,
+      handleResetFilters: this.handleResetFilters
+    };
+
     return (
-      <div className={styles.App}>
-        <Filters
-          filters={productsFilter}
-          handleChangeFilterInput={this.handleChangeFilterInput}
-          handleChangeCategories={this.handleChangeCategories}
-          handleResetFilters={this.handleResetFilters}
-        />
-        <Goods>
-          <Header>Список товаров</Header>
-          <GoodsList goods={filteredProducts} />
-        </Goods>
-      </div>
+      <AppContext.Provider value={appContextValue}>
+        <div className={styles.App}>
+          <Filters />
+          <Goods>
+            <Header>Список товаров</Header>
+            <GoodsList goods={filteredProducts} />
+          </Goods>
+        </div>
+      </AppContext.Provider>
     );
   }
 }
