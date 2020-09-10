@@ -7,41 +7,59 @@ import styles from './App.module.sass';
 
 export const AppContext = React.createContext();
 
+const defaultCategoriesState = [
+  {
+    id: 'clothes',
+    name: 'Clothes',
+    isActive: false
+  },
+  {
+    id: 'books',
+    name: 'Books',
+    isActive: false
+  }
+];
+
 const getMinPrice = products => Math.min(...products.map(({ price }) => price));
 const getMaxPrice = products => Math.max(...products.map(({ price }) => price));
 
 class App extends Component {
-  state = {
-    products: this.props.products,
-    productsFilter: {
-      minProductPrice: {
-        id: 'minProductPrice',
-        name: 'от',
-        value: getMinPrice(this.props.products)
-      },
-      maxProductPrice: {
-        id: 'maxProductPrice',
-        name: 'до',
-        value: getMaxPrice(this.props.products)
-      },
-      discount: {
-        id: 'discount',
-        value: 0
-      },
-      categories: [
-        {
-          id: 'clothes',
-          name: 'Clothes',
-          isActive: false
+  constructor(props) {
+    super(props);
+    const url = window.location.toString();
+    window.history.replaceState({ url }, '', url);
+
+    const activeCategories = new URL(url).searchParams.get('categories');
+    const arrayOfActiveCategories = activeCategories
+      ? activeCategories.split(',')
+      : [];
+
+    this.state = {
+      url,
+      products: this.props.products,
+      productsFilter: {
+        minProductPrice: {
+          id: 'minProductPrice',
+          name: 'от',
+          value: getMinPrice(this.props.products)
         },
-        {
-          id: 'books',
-          name: 'Books',
-          isActive: false
-        }
-      ]
-    }
-  };
+        maxProductPrice: {
+          id: 'maxProductPrice',
+          name: 'до',
+          value: getMaxPrice(this.props.products)
+        },
+        discount: {
+          id: 'discount',
+          value: 0
+        },
+        categories: defaultCategoriesState.map(category =>
+          arrayOfActiveCategories.includes(category.id)
+            ? { ...category, isActive: true }
+            : { ...category, isActive: false }
+        )
+      }
+    };
+  }
 
   filterProducts = (minPrice, maxPrice, discountValue) => {
     const { products, productsFilter } = this.state;
@@ -101,10 +119,32 @@ class App extends Component {
         }
       };
     });
+
+    this.setState(({ url, productsFilter }) => {
+      const { categories } = productsFilter;
+      const activeCategories = categories
+        .filter(({ isActive }) => isActive === true)
+        .map(({ id }) => id)
+        .join(',');
+
+      const newUrl = new URL(new URL(url).origin);
+
+      if (activeCategories) {
+        newUrl.searchParams.set('categories', activeCategories);
+      }
+
+      window.history.pushState(
+        { url: newUrl.toString() },
+        '',
+        newUrl.toString()
+      );
+
+      return { url: newUrl };
+    });
   };
 
   handleResetFilters = () => {
-    this.setState(({ productsFilter }) => {
+    this.setState(({ url, productsFilter }) => {
       const {
         minProductPrice,
         maxProductPrice,
@@ -112,7 +152,16 @@ class App extends Component {
         categories
       } = productsFilter;
 
+      const newUrl = new URL(new URL(url).origin);
+
+      window.history.pushState(
+        { url: newUrl.toString() },
+        '',
+        newUrl.toString()
+      );
+
       return {
+        url: newUrl,
         productsFilter: {
           minProductPrice: {
             ...minProductPrice,
@@ -131,6 +180,37 @@ class App extends Component {
       };
     });
   };
+
+  handlePopstate = e => {
+    const newUrl = new URL(e.state['url']);
+
+    this.setState(({ productsFilter }) => {
+      const { categories } = productsFilter;
+      const activeCategories = newUrl.searchParams.get('categories');
+      const arrayOfActiveCategories = activeCategories
+        ? activeCategories.split(',')
+        : [];
+
+      const newCategories = categories.map(category =>
+        arrayOfActiveCategories.includes(category.id)
+          ? { ...category, isActive: true }
+          : { ...category, isActive: false }
+      );
+
+      return {
+        url: newUrl,
+        productsFilter: { ...productsFilter, categories: newCategories }
+      };
+    });
+  };
+
+  componentDidMount() {
+    window.addEventListener('popstate', this.handlePopstate);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.handlePopstate);
+  }
 
   render() {
     const { productsFilter } = this.state;
