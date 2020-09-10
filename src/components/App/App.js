@@ -20,6 +20,14 @@ const defaultCategoriesState = [
   }
 ];
 
+const getCategoriesState = (currentState, activeCategories) => {
+  return currentState.map(category =>
+    activeCategories.includes(category.id)
+      ? { ...category, isActive: true }
+      : { ...category, isActive: false }
+  );
+};
+
 const getMinPrice = products => Math.min(...products.map(({ price }) => price));
 const getMaxPrice = products => Math.max(...products.map(({ price }) => price));
 
@@ -52,36 +60,38 @@ class App extends Component {
           id: 'discount',
           value: 0
         },
-        categories: defaultCategoriesState.map(category =>
-          arrayOfActiveCategories.includes(category.id)
-            ? { ...category, isActive: true }
-            : { ...category, isActive: false }
+        categories: getCategoriesState(
+          defaultCategoriesState,
+          arrayOfActiveCategories
         )
       }
     };
   }
 
-  filterProducts = (minPrice, maxPrice, discountValue) => {
+  filterProducts = () => {
     const { products, productsFilter } = this.state;
-    const { categories } = productsFilter;
-    const activeFilters = categories.reduce(
-      (activeFilters, filter) =>
-        filter.isActive ? [...activeFilters, filter.id] : activeFilters,
-      []
-    );
+    const {
+      minProductPrice,
+      maxProductPrice,
+      discount,
+      categories
+    } = productsFilter;
+    const { value: minPrice } = minProductPrice;
+    const { value: maxPrice } = maxProductPrice;
+    const { value: discountValue } = discount;
 
-    const isCategoriesFilterActive = categories.some(
-      ({ isActive }) => isActive === true
-    );
+    const activeFilters = categories
+      .filter(({ isActive }) => isActive)
+      .map(({ id }) => id);
+    const isCategoriesFilterActive = activeFilters.length !== 0;
 
-    return isCategoriesFilterActive
-      ? products
-          .filter(({ category }) => activeFilters.includes(category))
-          .filter(({ discount }) => discount >= discountValue)
-          .filter(({ price }) => price >= minPrice && price <= maxPrice)
-      : products
-          .filter(({ discount }) => discount >= discountValue)
-          .filter(({ price }) => price >= minPrice && price <= maxPrice);
+    const filtered = isCategoriesFilterActive
+      ? products.filter(({ category }) => activeFilters.includes(category))
+      : products;
+
+    return filtered
+      .filter(({ discount }) => discount >= discountValue)
+      .filter(({ price }) => price >= minPrice && price <= maxPrice);
   };
 
   handleChangeFilterInput = (filterName, value) => {
@@ -191,10 +201,9 @@ class App extends Component {
         ? activeCategories.split(',')
         : [];
 
-      const newCategories = categories.map(category =>
-        arrayOfActiveCategories.includes(category.id)
-          ? { ...category, isActive: true }
-          : { ...category, isActive: false }
+      const newCategories = getCategoriesState(
+        categories,
+        arrayOfActiveCategories
       );
 
       return {
@@ -214,13 +223,8 @@ class App extends Component {
 
   render() {
     const { productsFilter } = this.state;
-    const { minProductPrice, maxProductPrice, discount } = productsFilter;
 
-    const filteredProducts = this.filterProducts(
-      minProductPrice.value,
-      maxProductPrice.value,
-      discount.value
-    );
+    const filteredProducts = this.filterProducts();
 
     const appContextValue = {
       filters: productsFilter,
