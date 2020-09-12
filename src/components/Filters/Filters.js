@@ -3,7 +3,7 @@ import InputNumber from '../InputNumber';
 import InputDiscount from '../InputDiscount/inputDiscount';
 import CategoriesList from '../CategoriesList';
 import Button from '../Button';
-import { AppContext } from './../App/App';
+import { AppContext } from 'contexts/AppContext';
 import styles from './Filters.module.sass';
 
 class Filters extends PureComponent {
@@ -24,14 +24,14 @@ class Filters extends PureComponent {
                   <InputNumber
                     id={filters.minProductPrice.id}
                     name={filters.minProductPrice.name}
-                    defaultValue={filters.minProductPrice.value}
+                    value={filters.minProductPrice.value}
                     placeholder={0}
                     onChangeInputValue={handleChangeFilterInput}
                   />
                   <InputNumber
                     id={filters.maxProductPrice.id}
                     name={filters.maxProductPrice.name}
-                    defaultValue={filters.maxProductPrice.value}
+                    value={filters.maxProductPrice.value}
                     placeholder={3000}
                     onChangeInputValue={handleChangeFilterInput}
                   />
@@ -41,7 +41,6 @@ class Filters extends PureComponent {
                 <InputDiscount
                   title="Скидка"
                   id={filters.discount.id}
-                  defaultValue={filters.discount.value}
                   value={filters.discount.value}
                   onChangeInputValue={handleChangeFilterInput}
                 />
@@ -49,7 +48,7 @@ class Filters extends PureComponent {
               <fieldset className={styles.FiltersFieldset}>
                 <legend className={styles.FiltersHeader}>Категории</legend>
                 <CategoriesList
-                  items={filters.categories}
+                  activeCategories={filters.categories}
                   onClickCategoriesButton={handleChangeCategories}
                 />
               </fieldset>

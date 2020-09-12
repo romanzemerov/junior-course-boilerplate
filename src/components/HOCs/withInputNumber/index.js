@@ -6,8 +6,6 @@ const withInputNumber = WrappedComponent => {
   return class extends PureComponent {
     static displayName = 'withInputNumber';
 
-    state = { value: this.props.defaultValue };
-
     isValid = inputValue => REGEXP.test(inputValue);
 
     handleInputChange = e => {
@@ -21,8 +19,7 @@ const withInputNumber = WrappedComponent => {
     };
 
     render() {
-      const { value } = this.state;
-      const { defaultValue, ...rest } = this.props;
+      const { value, ...rest } = this.props;
 
       return (
         <WrappedComponent

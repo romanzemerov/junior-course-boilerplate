@@ -2,31 +2,45 @@ import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import styles from './CategoriesList.module.sass';
 
+const CATEGORIES_LIST = [
+  {
+    id: 'clothes',
+    label: 'Clothes'
+  },
+  {
+    id: 'books',
+    label: 'Books'
+  }
+];
+
 class CategoriesList extends PureComponent {
-  handleClick = ({ target }) => {
+  handleClick = e => {
     const { onClickCategoriesButton } = this.props;
-    onClickCategoriesButton(target.dataset.id);
+    onClickCategoriesButton(e.target.dataset.id);
   };
 
   render() {
-    const { items } = this.props;
+    const { activeCategories } = this.props;
 
     return (
       <ul className={styles.List}>
-        {items.map(({ id, name, isActive }) => (
-          <li className={styles.Item} key={id}>
-            <button
-              className={cx(styles.Button, {
-                [styles['Button--active']]: isActive
-              })}
-              type={'button'}
-              data-id={id}
-              onClick={this.handleClick}
-            >
-              {name}
-            </button>
-          </li>
-        ))}
+        {CATEGORIES_LIST.map(({ id, label }) => {
+          const isActive = activeCategories.includes(id);
+          return (
+            <li className={styles.Item} key={id}>
+              <button
+                className={cx(styles.Button, {
+                  [styles['Button--active']]: isActive
+                })}
+                type={'button'}
+                data-id={id}
+                onClick={this.handleClick}
+              >
+                {label}
+              </button>
+            </li>
+          );
+        })}
       </ul>
     );
   }

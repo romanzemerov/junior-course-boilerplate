@@ -3,69 +3,22 @@ import Goods from '../Goods';
 import Header from '../Header';
 import GoodsList from '../GoodsList';
 import Filters from '../Filters';
+import {
+  AppContext,
+  getInitialState,
+  getActiveCategories
+} from 'contexts/AppContext';
+import _ from 'lodash';
+import queryString from 'query-string';
 import styles from './App.module.sass';
-
-export const AppContext = React.createContext();
-
-const defaultCategoriesState = [
-  {
-    id: 'clothes',
-    name: 'Clothes',
-    isActive: false
-  },
-  {
-    id: 'books',
-    name: 'Books',
-    isActive: false
-  }
-];
-
-const getCategoriesState = (currentState, activeCategories) => {
-  return currentState.map(category =>
-    activeCategories.includes(category.id)
-      ? { ...category, isActive: true }
-      : { ...category, isActive: false }
-  );
-};
-
-const getMinPrice = products => Math.min(...products.map(({ price }) => price));
-const getMaxPrice = products => Math.max(...products.map(({ price }) => price));
 
 class App extends Component {
   constructor(props) {
     super(props);
-    const url = window.location.toString();
+    const location = window.location;
+    const url = location.toString();
     window.history.replaceState({ url }, '', url);
-
-    const activeCategories = new URL(url).searchParams.get('categories');
-    const arrayOfActiveCategories = activeCategories
-      ? activeCategories.split(',')
-      : [];
-
-    this.state = {
-      url,
-      products: this.props.products,
-      productsFilter: {
-        minProductPrice: {
-          id: 'minProductPrice',
-          name: 'от',
-          value: getMinPrice(this.props.products)
-        },
-        maxProductPrice: {
-          id: 'maxProductPrice',
-          name: 'до',
-          value: getMaxPrice(this.props.products)
-        },
-        discount: {
-          id: 'discount',
-          value: 0
-        },
-        categories: getCategoriesState(
-          defaultCategoriesState,
-          arrayOfActiveCategories
-        )
-      }
-    };
+    this.state = getInitialState(location);
   }
 
   filterProducts = () => {
@@ -80,13 +33,8 @@ class App extends Component {
     const { value: maxPrice } = maxProductPrice;
     const { value: discountValue } = discount;
 
-    const activeFilters = categories
-      .filter(({ isActive }) => isActive)
-      .map(({ id }) => id);
-    const isCategoriesFilterActive = activeFilters.length !== 0;
-
-    const filtered = isCategoriesFilterActive
-      ? products.filter(({ category }) => activeFilters.includes(category))
+    const filtered = categories.length
+      ? products.filter(({ category }) => categories.includes(category))
       : products;
 
     return filtered
@@ -105,110 +53,47 @@ class App extends Component {
     });
   };
 
-  handleChangeCategories = categoryID => {
+  handleChangeCategories = changedCategory => {
     this.setState(({ productsFilter }) => {
-      const { categories } = productsFilter;
+      const currentActiveCategories = getActiveCategories(window.location);
+      const newActiveCategories = _.xor(currentActiveCategories, [
+        changedCategory
+      ]);
 
-      const index = categories.findIndex(({ id }) => id === categoryID);
-      const category = categories[index];
-
-      const newCategory = {
-        ...category,
-        isActive: !category.isActive
-      };
-      const newCategories = [
-        ...categories.slice(0, index),
-        newCategory,
-        ...categories.slice(index + 1)
-      ];
-
-      return {
-        productsFilter: {
-          ...productsFilter,
-          categories: newCategories
-        }
-      };
-    });
-
-    this.setState(({ url, productsFilter }) => {
-      const { categories } = productsFilter;
-      const activeCategories = categories
-        .filter(({ isActive }) => isActive === true)
-        .map(({ id }) => id)
-        .join(',');
-
-      const newUrl = new URL(new URL(url).origin);
-
-      if (activeCategories) {
-        newUrl.searchParams.set('categories', activeCategories);
-      }
-
-      window.history.pushState(
-        { url: newUrl.toString() },
-        '',
-        newUrl.toString()
+      const newUrl = queryString.stringifyUrl(
+        {
+          url: window.location.origin,
+          query: { categories: newActiveCategories }
+        },
+        { arrayFormat: 'comma' }
       );
 
-      return { url: newUrl };
+      window.history.pushState({ url: newUrl }, '', newUrl);
+
+      return {
+        url: newUrl,
+        productsFilter: {
+          ...productsFilter,
+          categories: newActiveCategories
+        }
+      };
     });
   };
 
   handleResetFilters = () => {
-    this.setState(({ url, productsFilter }) => {
-      const {
-        minProductPrice,
-        maxProductPrice,
-        discount,
-        categories
-      } = productsFilter;
-
-      const newUrl = new URL(new URL(url).origin);
-
-      window.history.pushState(
-        { url: newUrl.toString() },
-        '',
-        newUrl.toString()
-      );
-
-      return {
-        url: newUrl,
-        productsFilter: {
-          minProductPrice: {
-            ...minProductPrice,
-            value: getMinPrice(this.props.products)
-          },
-          maxProductPrice: {
-            ...maxProductPrice,
-            value: getMaxPrice(this.props.products)
-          },
-          discount: { ...discount, value: 0 },
-          categories: [...categories].map(category => {
-            category.isActive = false;
-            return category;
-          })
-        }
-      };
-    });
+    const url = window.location.origin;
+    window.history.pushState({ url }, 'category', '/');
+    this.setState({ ...getInitialState(url) });
   };
 
   handlePopstate = e => {
-    const newUrl = new URL(e.state['url']);
-
     this.setState(({ productsFilter }) => {
-      const { categories } = productsFilter;
-      const activeCategories = newUrl.searchParams.get('categories');
-      const arrayOfActiveCategories = activeCategories
-        ? activeCategories.split(',')
-        : [];
-
-      const newCategories = getCategoriesState(
-        categories,
-        arrayOfActiveCategories
-      );
-
       return {
-        url: newUrl,
-        productsFilter: { ...productsFilter, categories: newCategories }
+        url: e.state['url'],
+        productsFilter: {
+          ...productsFilter,
+          categories: getActiveCategories(window.location)
+        }
       };
     });
   };
