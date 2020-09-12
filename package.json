@@ -6,6 +6,7 @@
     "@welldone-software/why-did-you-render": "^5.0.0-alpha.2",
     "csssr-school-input-discount": "git+https://github.com/CSSSR-School/junior-course-input-discount.git",
     "csssr-school-utils": "git+https://github.com/CSSSR-School/junior-course-utils.git",
+    "query-string": "^6.13.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-scripts": "3.2.0",
