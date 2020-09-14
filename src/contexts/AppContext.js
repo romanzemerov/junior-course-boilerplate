@@ -11,9 +11,9 @@ export const getActiveCategories = location => {
     arrayFormat: 'comma'
   }).categories;
 
-  return activeCategories === undefined
-    ? []
-    : typeof activeCategories === 'string'
+  if (!activeCategories) return [];
+
+  return typeof activeCategories === 'string'
     ? [activeCategories]
     : activeCategories;
 };
