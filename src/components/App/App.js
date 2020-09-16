@@ -3,36 +3,41 @@ import Goods from '../Goods';
 import Header from '../Header';
 import GoodsList from '../GoodsList';
 import Filters from '../Filters';
+import {
+  AppContext,
+  getInitialState,
+  getActiveCategories
+} from 'contexts/AppContext';
+import _ from 'lodash';
+import queryString from 'query-string';
 import styles from './App.module.sass';
 
-const getMinPrice = products => Math.min(...products.map(({ price }) => price));
-const getMaxPrice = products => Math.max(...products.map(({ price }) => price));
-
 class App extends Component {
-  state = {
-    products: this.props.products,
-    productsFilter: {
-      minProductPrice: {
-        id: 'minProductPrice',
-        name: 'от',
-        value: getMinPrice(this.props.products)
-      },
-      maxProductPrice: {
-        id: 'maxProductPrice',
-        name: 'до',
-        value: getMaxPrice(this.props.products)
-      },
-      discount: {
-        id: 'discount',
-        value: 0
-      }
-    }
-  };
+  constructor(props) {
+    super(props);
+    const location = window.location;
+    const url = location.toString();
+    window.history.replaceState({ url }, '', url);
+    this.state = getInitialState(location);
+  }
 
-  filterProducts = (minPrice, maxPrice, discountValue) => {
-    const { products } = this.state;
+  filterProducts = () => {
+    const { products, productsFilter } = this.state;
+    const {
+      minProductPrice,
+      maxProductPrice,
+      discount,
+      categories
+    } = productsFilter;
+    const { value: minPrice } = minProductPrice;
+    const { value: maxPrice } = maxProductPrice;
+    const { value: discountValue } = discount;
 
-    return products
+    const filtered = categories.length
+      ? products.filter(({ category }) => categories.includes(category))
+      : products;
+
+    return filtered
       .filter(({ discount }) => discount >= discountValue)
       .filter(({ price }) => price >= minPrice && price <= maxPrice);
   };
@@ -48,27 +53,81 @@ class App extends Component {
     });
   };
 
+  handleChangeCategories = changedCategory => {
+    this.setState(({ productsFilter }) => {
+      const currentActiveCategories = getActiveCategories(window.location);
+      const newActiveCategories = _.xor(currentActiveCategories, [
+        changedCategory
+      ]);
+
+      const newUrl = queryString.stringifyUrl(
+        {
+          url: window.location.origin,
+          query: { categories: newActiveCategories }
+        },
+        { arrayFormat: 'comma' }
+      );
+
+      window.history.pushState({ url: newUrl }, '', newUrl);
+
+      return {
+        url: newUrl,
+        productsFilter: {
+          ...productsFilter,
+          categories: newActiveCategories
+        }
+      };
+    });
+  };
+
+  handleResetFilters = () => {
+    const url = window.location.origin;
+    window.history.pushState({ url }, 'category', '/');
+    this.setState({ ...getInitialState(url) });
+  };
+
+  handlePopstate = e => {
+    this.setState(({ productsFilter }) => {
+      return {
+        url: e.state['url'],
+        productsFilter: {
+          ...productsFilter,
+          categories: getActiveCategories(window.location)
+        }
+      };
+    });
+  };
+
+  componentDidMount() {
+    window.addEventListener('popstate', this.handlePopstate);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.handlePopstate);
+  }
+
   render() {
     const { productsFilter } = this.state;
-    const { minProductPrice, maxProductPrice, discount } = productsFilter;
 
-    const filteredProducts = this.filterProducts(
-      minProductPrice.value,
-      maxProductPrice.value,
-      discount.value
-    );
+    const filteredProducts = this.filterProducts();
+
+    const appContextValue = {
+      filters: productsFilter,
+      handleChangeFilterInput: this.handleChangeFilterInput,
+      handleChangeCategories: this.handleChangeCategories,
+      handleResetFilters: this.handleResetFilters
+    };
 
     return (
-      <div className={styles.App}>
-        <Filters
-          filters={productsFilter}
-          handleChangeFilterInput={this.handleChangeFilterInput}
-        />
-        <Goods>
-          <Header>Список товаров</Header>
-          <GoodsList goods={filteredProducts} />
-        </Goods>
-      </div>
+      <AppContext.Provider value={appContextValue}>
+        <div className={styles.App}>
+          <Filters />
+          <Goods>
+            <Header>Список товаров</Header>
+            <GoodsList goods={filteredProducts} />
+          </Goods>
+        </div>
+      </AppContext.Provider>
     );
   }
 }
