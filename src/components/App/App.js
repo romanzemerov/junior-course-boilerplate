@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
 import Goods from '../Goods';
 import Header from '../Header';
-import GoodsList from '../GoodsList';
+import GoodsListContainer from 'components/GoodsList/GoodsListContainer';
 import Filters from '../Filters';
-import {
-  AppContext,
-  getInitialState,
-  getActiveCategories
-} from 'contexts/AppContext';
-import _ from 'lodash';
-import queryString from 'query-string';
+import { getActiveCategories } from 'helpers';
+import { connect } from 'react-redux';
+import { setCategories } from 'redux/actions';
 import styles from './App.module.sass';
 
 class App extends Component {
@@ -17,85 +13,13 @@ class App extends Component {
     super(props);
     const location = window.location;
     const url = location.toString();
+    const activeCategories = getActiveCategories(location);
+    props.setCategories(activeCategories);
     window.history.replaceState({ url }, '', url);
-    this.state = getInitialState(location);
   }
 
-  filterProducts = () => {
-    const { products, productsFilter } = this.state;
-    const {
-      minProductPrice,
-      maxProductPrice,
-      discount,
-      categories
-    } = productsFilter;
-    const { value: minPrice } = minProductPrice;
-    const { value: maxPrice } = maxProductPrice;
-    const { value: discountValue } = discount;
-
-    const filtered = categories.length
-      ? products.filter(({ category }) => categories.includes(category))
-      : products;
-
-    return filtered
-      .filter(({ discount }) => discount >= discountValue)
-      .filter(({ price }) => price >= minPrice && price <= maxPrice);
-  };
-
-  handleChangeFilterInput = (filterName, value) => {
-    this.setState(({ productsFilter }) => {
-      const newProductsFilter = { ...productsFilter };
-      newProductsFilter[filterName].value = value;
-
-      return {
-        productsFilter: newProductsFilter
-      };
-    });
-  };
-
-  handleChangeCategories = changedCategory => {
-    this.setState(({ productsFilter }) => {
-      const currentActiveCategories = getActiveCategories(window.location);
-      const newActiveCategories = _.xor(currentActiveCategories, [
-        changedCategory
-      ]);
-
-      const newUrl = queryString.stringifyUrl(
-        {
-          url: window.location.origin,
-          query: { categories: newActiveCategories }
-        },
-        { arrayFormat: 'comma' }
-      );
-
-      window.history.pushState({ url: newUrl }, '', newUrl);
-
-      return {
-        url: newUrl,
-        productsFilter: {
-          ...productsFilter,
-          categories: newActiveCategories
-        }
-      };
-    });
-  };
-
-  handleResetFilters = () => {
-    const url = window.location.origin;
-    window.history.pushState({ url }, 'category', '/');
-    this.setState({ ...getInitialState(url) });
-  };
-
-  handlePopstate = e => {
-    this.setState(({ productsFilter }) => {
-      return {
-        url: e.state['url'],
-        productsFilter: {
-          ...productsFilter,
-          categories: getActiveCategories(window.location)
-        }
-      };
-    });
+  handlePopstate = () => {
+    this.props.setCategories(getActiveCategories(window.location));
   };
 
   componentDidMount() {
@@ -107,29 +31,20 @@ class App extends Component {
   }
 
   render() {
-    const { productsFilter } = this.state;
-
-    const filteredProducts = this.filterProducts();
-
-    const appContextValue = {
-      filters: productsFilter,
-      handleChangeFilterInput: this.handleChangeFilterInput,
-      handleChangeCategories: this.handleChangeCategories,
-      handleResetFilters: this.handleResetFilters
-    };
-
     return (
-      <AppContext.Provider value={appContextValue}>
-        <div className={styles.App}>
-          <Filters />
-          <Goods>
-            <Header>Список товаров</Header>
-            <GoodsList goods={filteredProducts} />
-          </Goods>
-        </div>
-      </AppContext.Provider>
+      <div className={styles.App}>
+        <Filters />
+        <Goods>
+          <Header>Список товаров</Header>
+          <GoodsListContainer />
+        </Goods>
+      </div>
     );
   }
 }
 
-export default App;
+const mapDispatchToProps = {
+  setCategories,
+};
+
+export default connect(null, mapDispatchToProps)(App);

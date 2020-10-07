@@ -13,7 +13,6 @@ const withInputNumber = WrappedComponent => {
       const value = +e.target.value;
 
       if (this.isValid(value)) {
-        this.setState({ value });
         onChangeInputValue(id, value);
       }
     };
@@ -21,13 +20,7 @@ const withInputNumber = WrappedComponent => {
     render() {
       const { value, ...rest } = this.props;
 
-      return (
-        <WrappedComponent
-          {...rest}
-          onChange={this.handleInputChange}
-          value={value}
-        />
-      );
+      return <WrappedComponent {...rest} onChange={this.handleInputChange} value={value} />;
     }
   };
 };

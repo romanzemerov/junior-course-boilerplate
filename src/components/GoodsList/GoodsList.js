@@ -9,13 +9,12 @@ class GoodsList extends Component {
     const { goods } = this.props;
     const { goods: nextGoods } = nextProps;
 
-    return goods.length === nextGoods.length
-      ? goods.every(({ id }, i) => id !== nextGoods[i].id)
-      : true;
+    return goods.length === nextGoods.length ? goods.every(({ id }, i) => id !== nextGoods[i].id) : true;
   }
 
   render() {
-    let { goods } = this.props;
+    const { goods } = this.props;
+
     return (
       <ul className={styles.GoodsList}>
         {goods.map(good => {
