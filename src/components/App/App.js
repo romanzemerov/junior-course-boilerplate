@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Goods from '../Goods';
 import Header from '../Header';
 import GoodsListContainer from 'components/GoodsList/GoodsListContainer';
-import Filters from '../Filters';
+import FiltersContainer from 'components/Filters/FiltersContainer';
 import { getActiveCategories } from 'helpers';
 import { connect } from 'react-redux';
 import { setCategories } from 'redux/actions';
@@ -33,7 +33,7 @@ class App extends Component {
   render() {
     return (
       <div className={styles.App}>
-        <Filters />
+        <FiltersContainer />
         <Goods>
           <Header>Список товаров</Header>
           <GoodsListContainer />
